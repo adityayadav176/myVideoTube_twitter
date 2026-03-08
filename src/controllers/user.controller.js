@@ -10,6 +10,9 @@ const registerUser = asyncHandler(async (req, res) => {
    //remove password and refresh token field from response
    //check for user creation
    //return res
+
+    const {fullname, email, username, password} = res.body
+    console.log(email)
 })
 
 export default registerUser
