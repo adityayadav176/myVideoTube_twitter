@@ -46,7 +46,7 @@ const userSchema = new Schema({
 }, { timestamps: true })
 
 userSchema.pre("save", async function (next) {
-    const salt = bcrypt.genSalt(10);
+    const salt = await bcrypt.genSalt(10);
     if (!this.isModified("password")) return next()
 
     this.password = await  bcrypt.hash(this.password, salt)
@@ -81,5 +81,4 @@ userSchema.methods.generateRefreshToken = function () {
         }
     )
 }
-const User = mongoose.model("User", userSchema)
-module.exports = User
+export const User = mongoose.model("User", userSchema)
