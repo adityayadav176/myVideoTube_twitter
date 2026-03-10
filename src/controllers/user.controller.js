@@ -3,6 +3,22 @@ import { ApiError } from "../utils/ApiError.js"
 import { User } from "../models/user.models.js"
 import { uploadOnCloudinary } from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
+import { application } from "express"
+
+const generateAccessAndRefreshToken = async (userId){
+    try {
+        const user = await User.findById(userId)
+        const accessToken = user.generateRefreshToken()
+        const refreshToken = user.generateAccessToken()
+
+        user.refreshToken = refreshToken
+       await user.save({ValidationBeforeSave: false})
+
+       return {accessToken, refreshToken}
+    } catch (error) {
+        throw new ApiError(500, "Something went wrong while generating refresh and access token")
+    }
+}
 const registerUser = asyncHandler(async (req, res) => {
 
     // get user details from frontend
@@ -31,7 +47,7 @@ const registerUser = asyncHandler(async (req, res) => {
     const avatarLocalPath = req.files?.avatar?.[0]?.path;
 
     let coverImageLocalPath;
-    if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0){
+    if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
         coverImageLocalPath = req.files.coverImage[0].path
     }
 
@@ -64,6 +80,40 @@ const registerUser = asyncHandler(async (req, res) => {
     return res.json(
         new ApiResponse(200, createdUser, "User registered successfully")
     )
+
+})
+
+const loginUser = asyncHandler(async (req, res) => {
+    // req body -> data
+    //username or email
+    //find the user
+    // password check 
+    //access and refresh token
+    //send cookie
+    // send res
+
+    const { email, username, password } = req.body
+
+    if (!email || !username) {
+        throw new ApiError(400, "username or password is required")
+    }
+
+    const user = await User.findOne({
+        $or: [{ username, email }]
+    })
+
+    if (!user) {
+        throw new ApiError(404, "User not exist")
+    }
+
+    const isPasswordValid = await user.isPasswordCorrect(password)
+
+    if (!isPasswordValid) {
+        throw new ApiError(401, "Invalid user credentials")
+    }
+
+  const {accessToken, refreshToken} = await generateAccessAndRefreshToken(user._id)
+
 
 })
 
