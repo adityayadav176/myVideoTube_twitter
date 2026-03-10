@@ -5,7 +5,7 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import { application } from "express"
 
-const generateAccessAndRefreshToken = async (userId){
+const generateAccessAndRefreshToken = async (userId) => {
     try {
         const user = await User.findById(userId)
         const accessToken = user.generateRefreshToken()
@@ -112,7 +112,7 @@ const loginUser = asyncHandler(async (req, res) => {
         throw new ApiError(401, "Invalid user credentials")
     }
 
-  const {accessToken, refreshToken} = await generateAccessAndRefreshToken(user._id)
+//   const {accessToken, refreshToken} = await generateAccessAndRefreshToken(user._id)
 
 
 })
