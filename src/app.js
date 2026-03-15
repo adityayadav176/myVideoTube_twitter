@@ -15,9 +15,9 @@ app.use(express.urlencoded({ extended: true, limit: "16kb" }))
 app.use(express.static("public"))
 app.use(cookieParser())
 
-// 🔹 routes import
-import userRouter from "./routes/user.route.js"
-import commentRouter from "./routes/comment.route.js"
+// // 🔹 routes import
+import userRouter from "./routes/user.routes.js"
+import commentRouter from "./routes/comment.routes.js"
 import healthcheckRouter from "./routes/healthcheck.routes.js"
 import tweetRouter from "./routes/tweet.routes.js"
 import subscriptionRouter from "./routes/subscription.routes.js"
