@@ -6,12 +6,13 @@ import {
     publishAVideo,
     togglePublishStatus,
     updateVideo,
+    updateVideoDetails,
 } from "../controllers/video.controller.js"
 import {verifyJWT} from "../middlewares/auth.middleware.js"
 import {upload} from "../middlewares/multer.middleware.js"
 
 const router = Router();
-console.log("publishAVideo:", publishAVideo);
+
 router.use(verifyJWT);
 
 router.route("/")
@@ -32,13 +33,14 @@ router.post(
     publishAVideo
 );
 
-router.route("/all").post(getVideoById)
 
 router.route("/toggle/publish/:videoId").patch(togglePublishStatus);
 
 router.get("/test", (req, res) => {
     res.send("Video route working");
 });
+
+router.patch("/update-video-details/:videoId", updateVideoDetails)
 
 router
 .route("/:videoId")

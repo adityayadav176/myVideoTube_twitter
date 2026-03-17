@@ -249,12 +249,12 @@ const updateAccountDetails = asyncHandler(async(req, res) => {
     const { fullname, email } = req.body
 
     if (!fullname || !email) {
-        throw new ApiError(40, "All Fields are required")
+        throw new ApiError(400, "All Fields are required")
     }
 
     const user = await User.findByIdAndUpdate(req.user?._id, { $set: { fullname, email } }, { new: true }).select("-password")
     if (!user) {
-        throw new ApiError(400, {}, "Some thing went wrong while updating email or fullname")
+        throw new ApiError(400, {}, "Something went wrong while updating email or fullname")
     }
 
     return res

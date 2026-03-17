@@ -11,7 +11,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
 })
 
- const publishAVideo = asyncHandler(async (req, res) => {
+const publishAVideo = asyncHandler(async (req, res) => {
 
     // get video data from response.body
     // title, description, thumbnail, videoFile
@@ -31,7 +31,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
     const videoFileLocalUrl = req.files?.videoFile?.[0]?.path
     const thumbnailFileLocalUrl = req.files?.thumbnail?.[0]?.path
-    
+
 
     if (!videoFileLocalUrl) {
         throw new ApiError(400, "Video file is Required")
@@ -72,18 +72,45 @@ const getAllVideos = asyncHandler(async (req, res) => {
 })
 
 const getVideoById = asyncHandler(async (req, res) => {
-    res.send("hello")
 })
 
-const updateVideo = asyncHandler(async (req, res) => {
+const updateVideoDetails = asyncHandler(async (req, res) => {
+    const { title, description } = req.body;
 
-})
+    // At least one field required
+    if (!title && !description) {
+        throw new ApiError(400, "At least one field is required");
+    }
+
+    // Prepare update object safely
+    const updateData = {};
+
+    if (title) updateData.title = title;
+    if (description) updateData.description = description;
+
+    const video = await Video.findByIdAndUpdate(
+        req.params.videoId,
+        { $set: updateData },
+       { returnDocument: "after" }
+    );
+
+    if (!video) {
+        throw new ApiError(404, "Video not found or update failed");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(200, video, "Video details updated successfully")
+    );
+});
 
 const deleteVideo = asyncHandler(async (req, res) => {
 
 })
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
+
+})
+const updateVideo = asyncHandler(async (req, res) => {
 
 })
 
@@ -93,5 +120,6 @@ export {
     getVideoById,
     updateVideo,
     deleteVideo,
-    togglePublishStatus
+    togglePublishStatus,
+    updateVideoDetails
 }
