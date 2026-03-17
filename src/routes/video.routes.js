@@ -11,32 +11,43 @@ import {verifyJWT} from "../middlewares/auth.middleware.js"
 import {upload} from "../middlewares/multer.middleware.js"
 
 const router = Router();
-router.use(verifyJWT); // Apply verifyJWT middleware to all routes in this file
+console.log("publishAVideo:", publishAVideo);
+router.use(verifyJWT);
 
-router
-    .route("/")
-    .get(getAllVideos)
-    .post(
-        upload.fields([
-            {
-                name: "videoFile",
-                maxCount: 1,
-            },
-            {
-                name: "thumbnail",
-                maxCount: 1,
-            },
-            
-        ]),
-        publishAVideo
-    );
+router.route("/")
+.get(getAllVideos)
 
-router
-    .route("/:videoId")
-    .get(getVideoById)
-    .delete(deleteVideo)
-    .patch(upload.single("thumbnail"), updateVideo);
+router.post(
+    "/AddNewVideo",
+    (req, res, next) => {
+        console.log("👉 BEFORE MULTER");
+        next();
+    },
+    upload.fields([
+        { name: "videoFile", maxCount: 1 },
+        { name: "thumbnail", maxCount: 1 },
+    ]),
+    (req, res, next) => {
+        console.log("👉 AFTER MULTER");
+        console.log("FILES:", req.files);
+        console.log("BODY:", req.body);
+        next();
+    },
+    publishAVideo
+);
+
+router.route("/all").post(getVideoById)
 
 router.route("/toggle/publish/:videoId").patch(togglePublishStatus);
 
-export default router
+router.get("/test", (req, res) => {
+    res.send("Video route working");
+});
+
+router
+.route("/:videoId")
+// .get(getVideoById)
+.delete(deleteVideo)
+.patch(upload.single("thumbnail"), updateVideo);
+console.log("video routes loaded")
+export default router;
