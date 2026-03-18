@@ -105,23 +105,41 @@ const updateVideoDetails = asyncHandler(async (req, res) => {
 
 
 const updateVideoFile = asyncHandler(async (req, res) => {
-    // 1. get video file
-    const videoFile = req.file?.path; // if using single()
+
+    // 0. validate id
+    const { videoId } = req.params;
+
+    if (!mongoose.isValidObjectId(videoId)) {
+        throw new ApiError(400, "Invalid video ID");
+    }
+
+    // 1. check if video exists FIRST
+    const existingVideo = await Video.findById(videoId);
+
+    if (!existingVideo) {
+        throw new ApiError(404, "video not found");
+    }
+
+    // 2. get video file
+    const videoFile = req.file?.path;
 
     if (!videoFile) {
         throw new ApiError(400, "video file is required");
     }
 
-    // 2. upload to cloudinary
+    // 3. upload to cloudinary
     const uploadedVideo = await uploadOnCloudinary(videoFile);
 
-    if (!uploadedVideo) {
+    if (!uploadedVideo?.url) {
         throw new ApiError(400, "error uploading video");
     }
 
-    // 3. update DB
-    const video = await Video.findByIdAndUpdate(
-        req.params.videoId,
+    // 🔥 OPTIONAL: delete old video from cloudinary
+    // await deleteFromCloudinary(existingVideo.videoFile);
+
+    // 4. update DB
+    const updatedVideo = await Video.findByIdAndUpdate(
+        videoId,
         {
             $set: {
                 videoFile: uploadedVideo.url
@@ -130,13 +148,9 @@ const updateVideoFile = asyncHandler(async (req, res) => {
         { new: true }
     );
 
-    if (!video) {
-        throw new ApiError(404, "video not found");
-    }
-
-    // 4. send response
+    // 5. response
     return res.status(200).json(
-        new ApiResponse(200, video, "video successfully updated")
+        new ApiResponse(200, updatedVideo, "video successfully updated")
     );
 });
 

@@ -41,7 +41,7 @@ router.delete("/delete-video/:videoId", deleteVideo)
 
 router.patch("/update-video-details/:videoId", updateVideoDetails)
 
-router.patch("/update-videoFile",
+router.patch("/update-videoFile/:videoId",
     upload.single("videoFile"),
     updateVideoFile
 );
