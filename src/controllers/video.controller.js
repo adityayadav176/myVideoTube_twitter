@@ -91,7 +91,7 @@ const updateVideoDetails = asyncHandler(async (req, res) => {
     const video = await Video.findByIdAndUpdate(
         req.params.videoId,
         { $set: updateData },
-       { returnDocument: "after" }
+        { returnDocument: "after" }
     );
 
     if (!video) {
@@ -154,6 +154,50 @@ const updateVideoFile = asyncHandler(async (req, res) => {
     );
 });
 
+const updateVideoThumbnail = asyncHandler(async (req, res) => {
+
+    const { videoId } = req.params;
+
+    if (!mongoose.isValidObjectId(videoId)) {
+        throw new ApiError(400, "Invalid video ID");
+    }
+
+    const existingVideo = await Video.findById(videoId);
+
+    if (!existingVideo) {
+        throw new ApiError(400, "video not found")
+    }
+
+    const thumbnailFile = req?.file?.path;
+
+    if (!thumbnailFile) {
+        throw new ApiError(400, "thumbnail file is required")
+    }
+
+    const uploadThumbnail = await uploadOnCloudinary(thumbnailFile)
+
+    if (!uploadThumbnail.url) {
+        throw new ApiError(400, "error uploading new thumbnail")
+    }
+
+    const thumbnail = await Video.findByIdAndUpdate(
+        videoId,
+        {
+            $set: {
+                thumbnail: uploadThumbnail.url
+            }
+        },
+        {
+            new: true
+        }
+    )
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, thumbnail, "Successfully uploaded new thumbnail")
+        )
+})
 
 
 const deleteVideo = asyncHandler(async (req, res) => {
@@ -164,10 +208,10 @@ const deleteVideo = asyncHandler(async (req, res) => {
     }
 
     return res
-    .status(200)
-    .json(
-        new ApiResponse(200, {}, "Video deleted successfully")
-    )
+        .status(200)
+        .json(
+            new ApiResponse(200, {}, "Video deleted successfully")
+        )
 })
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
@@ -184,5 +228,6 @@ export {
     deleteVideo,
     togglePublishStatus,
     updateVideoDetails,
-    updateVideoFile
+    updateVideoFile,
+    updateVideoThumbnail
 }

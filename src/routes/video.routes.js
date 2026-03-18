@@ -7,6 +7,7 @@ import {
     togglePublishStatus,
     updateVideoDetails,
     updateVideoFile,
+    updateVideoThumbnail,
 } from "../controllers/video.controller.js"
 import { verifyJWT } from "../middlewares/auth.middleware.js"
 import { upload } from "../middlewares/multer.middleware.js"
@@ -45,6 +46,8 @@ router.patch("/update-videoFile/:videoId",
     upload.single("videoFile"),
     updateVideoFile
 );
+
+
 
 router.get("/getVideoById", getVideoById)
 
