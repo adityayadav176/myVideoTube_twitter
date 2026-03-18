@@ -47,7 +47,10 @@ router.patch("/update-videoFile/:videoId",
     updateVideoFile
 );
 
-
+router.patch("/update-videoThumbnail/:videoId",
+    upload.single("thumbnail"),
+    updateVideoThumbnail
+);
 
 router.get("/getVideoById", getVideoById)
 
