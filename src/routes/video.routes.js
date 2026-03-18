@@ -31,13 +31,6 @@ router.post(
     publishAVideo
 );
 
-
-
-
-router.get("/test", (req, res) => {
-    res.send("Video route working");
-});
-
 router.delete("/delete-video/:videoId", deleteVideo)
 
 router.patch("/update-video-details/:videoId", updateVideoDetails)
@@ -54,7 +47,7 @@ router.patch("/update-videoThumbnail/:videoId",
 
 router.get("/getVideoById", getVideoById)
 
-router.route("/toggle/publish/:videoId").patch(togglePublishStatus);
+
 
 router.route("/").get(getAllVideos)
 

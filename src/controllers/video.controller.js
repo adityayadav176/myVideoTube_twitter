@@ -7,7 +7,6 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js"
 
 
 const getAllVideos = asyncHandler(async (req, res) => {
-
 })
 
 const publishAVideo = asyncHandler(async (req, res) => {
@@ -102,7 +101,6 @@ const updateVideoDetails = asyncHandler(async (req, res) => {
         new ApiResponse(200, video, "Video details updated successfully")
     );
 });
-
 
 const updateVideoFile = asyncHandler(async (req, res) => {
 
@@ -199,7 +197,6 @@ const updateVideoThumbnail = asyncHandler(async (req, res) => {
         )
 })
 
-
 const deleteVideo = asyncHandler(async (req, res) => {
     const video = await Video.findByIdAndDelete(req.params.videoId)
 
@@ -215,10 +212,43 @@ const deleteVideo = asyncHandler(async (req, res) => {
 })
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
+    // get Video by id
+    // validate id
+    //find video
+    //toggle status => if published than true else false
+    // update in db
+    //return response
 
+    const { videoId } = req.params;
+
+    if(!mongoose.isValidObjectId(videoId)){
+        throw new ApiError(400, "Invalid video Id")
+    }
+
+    const existingVideo = await Video.findById(videoId)
+
+    if(!existingVideo){
+        throw new ApiError(400, "video not found")
+    }
+
+    const updateVideo = await Video.findByIdAndUpdate(
+        videoId,
+        {
+            $set: {
+                isPublished: !existingVideo.isPublished
+            }
+        },
+        {
+            new: true
+        }
+    )
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, updateVideo, `video is now ${updateVideo.isPublished ? "Published" : "Unpublished"}`)
+    );
 })
-
-
 
 
 export {
