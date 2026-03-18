@@ -71,6 +71,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
 })
 
 const getVideoById = asyncHandler(async (req, res) => {
+
 })
 
 const updateVideoDetails = asyncHandler(async (req, res) => {
@@ -102,6 +103,45 @@ const updateVideoDetails = asyncHandler(async (req, res) => {
     );
 });
 
+
+const updateVideoFile = asyncHandler(async (req, res) => {
+    // 1. get video file
+    const videoFile = req.file?.path; // if using single()
+
+    if (!videoFile) {
+        throw new ApiError(400, "video file is required");
+    }
+
+    // 2. upload to cloudinary
+    const uploadedVideo = await uploadOnCloudinary(videoFile);
+
+    if (!uploadedVideo) {
+        throw new ApiError(400, "error uploading video");
+    }
+
+    // 3. update DB
+    const video = await Video.findByIdAndUpdate(
+        req.params.videoId,
+        {
+            $set: {
+                videoFile: uploadedVideo.url
+            }
+        },
+        { new: true }
+    );
+
+    if (!video) {
+        throw new ApiError(404, "video not found");
+    }
+
+    // 4. send response
+    return res.status(200).json(
+        new ApiResponse(200, video, "video successfully updated")
+    );
+});
+
+
+
 const deleteVideo = asyncHandler(async (req, res) => {
     const video = await Video.findByIdAndDelete(req.params.videoId)
 
@@ -119,13 +159,7 @@ const deleteVideo = asyncHandler(async (req, res) => {
 const togglePublishStatus = asyncHandler(async (req, res) => {
 
 })
-const uploadNewVideo = asyncHandler(async (req, res) => {
 
-})
-
-const uploadNewThumbnail = asyncHandler(async (req, res) => {
-
-})
 
 
 
@@ -133,9 +167,8 @@ export {
     getAllVideos,
     publishAVideo,
     getVideoById,
-    uploadNewVideo,
     deleteVideo,
     togglePublishStatus,
     updateVideoDetails,
-    uploadNewThumbnail
+    updateVideoFile
 }

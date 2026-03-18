@@ -6,8 +6,6 @@ import {
     publishAVideo,
     togglePublishStatus,
     updateVideoDetails,
-    uploadNewThumbnail,
-    uploadNewVideo,
 } from "../controllers/video.controller.js"
 import {verifyJWT} from "../middlewares/auth.middleware.js"
 import {upload} from "../middlewares/multer.middleware.js"
@@ -41,10 +39,6 @@ router.get("/test", (req, res) => {
 router.delete("/delete-video/:videoId", deleteVideo)
 
 router.patch("/update-video-details/:videoId", updateVideoDetails)
-
-router.patch("/update-video-thumbnail/:videoId", uploadNewThumbnail)
-
-router.patch("/update-new-video", uploadNewVideo)
 
 router.get("/getVideoById", getVideoById)
 
