@@ -70,8 +70,29 @@ const publishAVideo = asyncHandler(async (req, res) => {
 })
 
 const getVideoById = asyncHandler(async (req, res) => {
+    const { videoId } = req.params;
 
-})
+    
+    if (!mongoose.isValidObjectId(videoId)) {
+        throw new ApiError(400, "Invalid video id");
+    }
+
+   
+    const video = await Video.findOne({
+        _id: videoId,
+        isPublished: true
+    });
+
+    
+    if (!video) {
+        throw new ApiError(404, "Video not found");
+    }
+
+   
+    return res.status(200).json(
+        new ApiResponse(200, video, "Video fetched successfully")
+    );
+});
 
 const updateVideoDetails = asyncHandler(async (req, res) => {
     const { title, description } = req.body;
@@ -221,13 +242,13 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
 
     const { videoId } = req.params;
 
-    if(!mongoose.isValidObjectId(videoId)){
+    if (!mongoose.isValidObjectId(videoId)) {
         throw new ApiError(400, "Invalid video Id")
     }
 
     const existingVideo = await Video.findById(videoId)
 
-    if(!existingVideo){
+    if (!existingVideo) {
         throw new ApiError(400, "video not found")
     }
 
@@ -244,10 +265,10 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
     )
 
     return res
-    .status(200)
-    .json(
-        new ApiResponse(200, updateVideo, `video is now ${updateVideo.isPublished ? "Published" : "Unpublished"}`)
-    );
+        .status(200)
+        .json(
+            new ApiResponse(200, updateVideo, `video is now ${updateVideo.isPublished ? "Published" : "Unpublished"}`)
+        );
 })
 
 
