@@ -47,7 +47,7 @@ router.patch("/update-videoThumbnail/:videoId",
 
 router.get("/getVideoById", getVideoById)
 
-
+router.route("/toggle/publish/:videoId").patch(togglePublishStatus);
 
 router.route("/").get(getAllVideos)
 
