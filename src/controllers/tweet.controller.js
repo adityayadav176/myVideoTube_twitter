@@ -67,23 +67,23 @@ const updateTweet = asyncHandler(async (req, res) => {
 })
 
 const deleteTweet = asyncHandler(async (req, res) => {
-    // const {tweetId} = req.params
+    const {tweetId} = req.params
 
-    // if(!tweetId || !mongoose.isValidObjectId(tweetId)){
-    //     throw new ApiError(404, "Invalid TweetId")
-    // }
+    if(!tweetId || !mongoose.isValidObjectId(tweetId)){
+        throw new ApiError(404, "Invalid TweetId")
+    }
 
-    // const deletedTweet = await Tweet.findByIdAndDelete(tweetId)
+    const deletedTweet = await Tweet.findByIdAndDelete(tweetId)
 
-    // if(!deleteTweet){
-    //     throw new ApiError(400, "Tweet not deleted!")
-    // }
+    if(!deletedTweet){
+        throw new ApiError(400, "Tweet not found!")
+    }
 
-    // res
-    // .status(200)
-    // .json(
-    //     new ApiResponse(200, {}, "Tweet deleted successfully")
-    // )
+    res
+    .status(200)
+    .json(
+        new ApiResponse(200, {}, "Tweet deleted successfully")
+    )
 })
 
 export {
