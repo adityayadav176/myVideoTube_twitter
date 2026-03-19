@@ -1,5 +1,5 @@
 import mongoose from "mongoose"
-import {Like} from "../models/like.model.js"
+import { Like } from "../models/like.model.js"
 import { ApiError } from "../utils/ApiError.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import { asyncHandler } from "../utils/asyncHandler.js"
@@ -10,7 +10,7 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
     const userId = req.user?._id;
 
     // Validate videoId
-    if (!mongoose.isValidObjectId(videoId)) {
+    if (videoId || !mongoose.isValidObjectId(videoId)) {
         throw new ApiError(400, "Invalid video ID");
     }
 
@@ -41,16 +41,51 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
     );
 });
 
-const toggleCommentLike = asyncHandler(async(req, res)=>{
-    
+const toggleCommentLike = asyncHandler(async (req, res) => {
+    const { commentId } = req.params
+    const { userId } = req.user._id
+
+    // Validate videoId
+    if (commentId || !mongoose.isValidObjectId(commentId)) {
+        throw new ApiError(400, "Invalid comment ID");
+    }
+
+    const existingLike = await Like.findOne({
+        comment: commentId,
+        owner: userId
+    })
+
+    let message;
+
+    if (existingLike) {
+        await Like.findByIdAndDelete(existingLike._id)
+        message = "Comment Liked"
+    } else {
+        await Like.create({
+            comment: commentId,
+            owner: userId
+        })
+        message =  "Comment Unliked"
+    }
+
+    res
+        .status(200)
+        .json(
+            new ApiResponse(200, null, message)
+        );
 })
 
-const toggleTweetLike = asyncHandler(async(req, res)=>{
+const toggleTweetLike = asyncHandler(async (req, res) => {
+    // const {TweetId} = req.params
+    // const {userId} = req.user._id
 
+    //  if (TweetId || !mongoose.isValidObjectId(TweetId)) {
+    //     throw new ApiError(400, "Invalid comment ID");
+    // }
 })
 
-const getLikedVideos = asyncHandler(async(req, res)=>{
-    
+const getLikedVideos = asyncHandler(async (req, res) => {
+
 })
 
 export {
