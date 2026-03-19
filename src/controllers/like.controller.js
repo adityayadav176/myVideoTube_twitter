@@ -65,7 +65,7 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
             comment: commentId,
             owner: userId
         })
-        message =  "Comment Unliked"
+        message = "Comment Unliked"
     }
 
     res
@@ -76,12 +76,36 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
 })
 
 const toggleTweetLike = asyncHandler(async (req, res) => {
-    // const {TweetId} = req.params
-    // const {userId} = req.user._id
+    const { tweetId } = req.params
+    const { userId } = req.user._id
 
-    //  if (TweetId || !mongoose.isValidObjectId(TweetId)) {
-    //     throw new ApiError(400, "Invalid comment ID");
-    // }
+    if (!tweetId || !mongoose.isValidObjectId(tweetId)) {
+        throw new ApiError(400, "Invalid Tweet ID");
+    }
+
+    const existingLike = await Like.findOne({
+        tweet: tweetId,
+        likedBy: userId
+    })
+    let message;
+
+    if (existingLike) {
+        // unlike
+        await Like.findByIdAndDelete(existingLike._id);
+        message = "Tweet unliked"
+    } else {
+        await Like.create({
+            tweet: tweetId,
+            likedBy: userId
+        })
+        message = "Tweet liked"
+    }
+
+    res
+    .status(200)
+    .json(
+        new ApiResponse(200, null, message)
+    )
 })
 
 const getLikedVideos = asyncHandler(async (req, res) => {
