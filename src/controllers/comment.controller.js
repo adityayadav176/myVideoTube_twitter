@@ -5,7 +5,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 const getAllComment = asyncHandler(async (req, res) => {
-    
+
 })
 
 
@@ -73,6 +73,22 @@ const updateComment = asyncHandler(async (req, res) => {
 
 const deleteComment = asyncHandler(async (req, res) => {
 
+    const {commentId} = req.params
+
+    if(!commentId || !mongoose.isValidObjectId(commentId)){
+        throw new ApiError(404, "Invalid commentId")
+    }
+    const comment = await Comment.findByIdAndDelete(commentId)
+
+    if(!comment){
+        throw new ApiError(400, "error while deleting comment!")
+    }
+
+    res
+    .status(200)
+    .json(
+        new ApiResponse(200, {}, "comment deleted successfully")
+    )
 })
 
 export {
