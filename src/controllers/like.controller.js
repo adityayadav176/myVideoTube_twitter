@@ -10,7 +10,7 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
     const userId = req.user?._id;
 
     // Validate videoId
-    if (videoId || !mongoose.isValidObjectId(videoId)) {
+    if (!videoId || !mongoose.isValidObjectId(videoId)) {
         throw new ApiError(400, "Invalid video ID");
     }
 
@@ -46,7 +46,7 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
     const { userId } = req.user._id
 
     // Validate videoId
-    if (commentId || !mongoose.isValidObjectId(commentId)) {
+    if (!commentId || !mongoose.isValidObjectId(commentId)) {
         throw new ApiError(400, "Invalid comment ID");
     }
 
