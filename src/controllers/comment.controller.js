@@ -5,7 +5,6 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 const getAllComment = asyncHandler(async (req, res) => {
-
 })
 
 const addComment = asyncHandler(async (req, res) => {
