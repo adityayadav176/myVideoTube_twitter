@@ -51,7 +51,9 @@ const updateComment = asyncHandler(async (req, res) => {
     const newComment = await Comment.findByIdAndUpdate(
         commentId,
         {
-            content
+            $set: {
+                content
+            }
         },
         {
             new: true
