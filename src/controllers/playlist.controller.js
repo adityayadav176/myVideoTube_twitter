@@ -96,6 +96,34 @@ const deletePlaylist = asyncHandler(async (req, res) => {
 });
 
 const updatePlaylist = asyncHandler(async (req, res) => {
+    const {name, description} = req.body
+    const { playlistId } = req.params
+
+    if(!name || name.trim() === ""){
+        throw new ApiError(400, "Playlist Name is Required")
+    }
+
+    if(!playlistId || !mongoose.isValidObjectId(playlistId)){
+        throw new ApiError(400, "Invalid PlaylistId")
+    }
+
+    const newPlaylist = await Playlist.create({
+        name,
+        description,
+        owner: req.user._id,
+        videos: []
+    })
+
+    if(!newPlaylist){
+        throw new ApiError(500, "Playlist not updated")
+    }
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, newPlaylist, "Playlist updated Successfully")
+    )
+
 
 })
 
