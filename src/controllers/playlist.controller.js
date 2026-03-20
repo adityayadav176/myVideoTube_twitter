@@ -40,23 +40,23 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
 })
 
 const getPlaylistById = asyncHandler(async (req, res) => {
-    // const { playlistId } = req.params;
+    const { playlistId } = req.params;
 
-    // if (!playlistId || !mongoose.isValidObjectId(playlistId)) {
-    //     throw new ApiError(400, "Invalid PlaylistId")
-    // }
+    if (!playlistId || !mongoose.isValidObjectId(playlistId)) {
+        throw new ApiError(400, "Invalid PlaylistId")
+    }
 
-    // const playlist = await Playlist.findById(playlistId)
+    const playlist = await Playlist.findById(playlistId)
 
-    // if (!playlist) {
-    //     throw new ApiError(404, "Playlist not found")
-    // }
+    if (!playlist) {
+        throw new ApiError(404, "Playlist not found")
+    }
 
-    // return res
-    //     .status(200)
-    //     .json(
-    //         new ApiResponse(200, playlist, "fetched Playlist Successfully")
-    //     )
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, playlist, "fetched Playlist Successfully")
+        )
 })
 
 const addVideoToPlaylist = asyncHandler(async (req, res) => {
