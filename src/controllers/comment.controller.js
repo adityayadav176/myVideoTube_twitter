@@ -6,24 +6,43 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 
 const getVideoComments = asyncHandler(async (req, res) => {
     const { videoId } = req.params
+    const { page = 1, limit = 10 } = req.query;
 
-    if(!videoId || !mongoose.isValidObjectId(videoId)){
+    // check if videoId Invalid
+    if (!videoId || !mongoose.isValidObjectId(videoId)) {
         throw new ApiError(400, "Invalid videoId")
     }
+    // Convert query to numbers
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
 
+    // Calculate skip
+    const skip = (pageNumber - 1) * limitNumber;
+
+    //total comment
+    const totalComments = await Comment.countDocuments({
+        video: videoId
+    })
+    // find Comments with proper pagination and populate user details
     const Comments = await Comment.find({
         video: videoId
-    }).sort({ createdAt: -1 });
+    }).sort({ createdAt: -1 }).skip(skip).limit(limitNumber).populate("owner", "username avatar")
 
-    if(!Comments){
+    // check comment not empty
+    if (Comments.length === 0) {
         throw new ApiError(404, "Comment not found!")
     }
-
+    //send response
     res
-    .status(200)
-    .json(
-        new ApiResponse(200, Comments, "fetched All Comments successfully")
-    )
+        .status(200)
+        .json(
+            new ApiResponse(200, {
+                Comments,
+                totalComments,
+                currentPage: pageNumber,
+                totalPages: Math.ceil(totalComments / limitNumber)
+            }, "fetched All Comments successfully")
+        )
 })
 
 const addComment = asyncHandler(async (req, res) => {
@@ -92,22 +111,22 @@ const updateComment = asyncHandler(async (req, res) => {
 
 const deleteComment = asyncHandler(async (req, res) => {
 
-    const {commentId} = req.params
+    const { commentId } = req.params
 
-    if(!commentId || !mongoose.isValidObjectId(commentId)){
+    if (!commentId || !mongoose.isValidObjectId(commentId)) {
         throw new ApiError(404, "Invalid commentId")
     }
     const comment = await Comment.findByIdAndDelete(commentId)
 
-    if(!comment){
+    if (!comment) {
         throw new ApiError(400, "comment not found!")
     }
 
     res
-    .status(200)
-    .json(
-        new ApiResponse(200, {}, "comment deleted successfully")
-    )
+        .status(200)
+        .json(
+            new ApiResponse(200, {}, "comment deleted successfully")
+        )
 })
 
 export {
