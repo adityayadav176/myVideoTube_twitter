@@ -4,7 +4,26 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
-const getAllComment = asyncHandler(async (req, res) => {
+const getVideoComments = asyncHandler(async (req, res) => {
+    const { videoId } = req.params
+
+    if(!videoId || !mongoose.isValidObjectId(videoId)){
+        throw new ApiError(400, "Invalid videoId")
+    }
+
+    const Comments = await Comment.find({
+        video: videoId
+    }).sort({ createdAt: -1 });
+
+    if(!Comments){
+        throw new ApiError(404, "Comment not found!")
+    }
+
+    res
+    .status(200)
+    .json(
+        new ApiResponse(200, Comments, "fetched All Comments successfully")
+    )
 })
 
 const addComment = asyncHandler(async (req, res) => {
@@ -92,7 +111,7 @@ const deleteComment = asyncHandler(async (req, res) => {
 })
 
 export {
-    getAllComment,
+    getVideoComments,
     addComment,
     updateComment,
     deleteComment
