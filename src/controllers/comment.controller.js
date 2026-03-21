@@ -6,7 +6,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 
 const getVideoComments = asyncHandler(async (req, res) => {
     const { videoId } = req.params
-    const { page = 1, limit = 10 } = req.query;
+    const { page, limit } = req.query;
 
     // check if videoId Invalid
     if (!videoId || !mongoose.isValidObjectId(videoId)) {
