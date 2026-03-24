@@ -31,14 +31,14 @@ const getChannelStats = asyncHandler(async (req, res) => {
             }
         },
 
-        // 3. Add likes count per video
+        // Add likes count per video
         {
             $addFields: {
                 likesCount: { $size: "$likes" }
             }
         },
 
-        // 4. Group all videos → single stats object
+        // Group all videos → single stats object
         {
             $group: {
                 _id: null,
@@ -49,7 +49,7 @@ const getChannelStats = asyncHandler(async (req, res) => {
         }
     ]);
 
-    // 5. Get subscribers count (separate query)
+    // Get subscribers count (separate query)
     const totalSubscribers = await Subscription.countDocuments({
         channel: userId
     });
