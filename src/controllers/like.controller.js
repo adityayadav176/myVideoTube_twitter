@@ -9,12 +9,14 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
     const { videoId } = req.params;
     const userId = req.user?._id;
 
-    // Validate videoId
+    if (!userId) {
+        throw new ApiError(401, "Unauthorized");
+    }
+
     if (!videoId || !mongoose.isValidObjectId(videoId)) {
         throw new ApiError(400, "Invalid video ID");
     }
 
-    // Check existing like
     const existingLike = await Like.findOne({
         video: videoId,
         likedBy: userId
@@ -22,13 +24,10 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
 
     let message;
 
-    //  Toggle logic
     if (existingLike) {
-        // Unlike
-        await Like.findByIdAndDelete(existingLike._id);
+        await Like.deleteOne({ _id: existingLike._id });
         message = "Video unliked";
     } else {
-        // Like
         await Like.create({
             video: videoId,
             likedBy: userId
@@ -42,71 +41,74 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
 });
 
 const toggleCommentLike = asyncHandler(async (req, res) => {
-    const { commentId } = req.params
-    const { userId } = req.user._id
+    const { commentId } = req.params;
+    const userId = req.user?._id;
 
-    // Validate videoId
+    if (!userId) {
+        throw new ApiError(401, "Unauthorized");
+    }
+
     if (!commentId || !mongoose.isValidObjectId(commentId)) {
         throw new ApiError(400, "Invalid comment ID");
     }
 
     const existingLike = await Like.findOne({
         comment: commentId,
-        owner: userId
-    })
+        likedBy: userId
+    });
 
     let message;
 
     if (existingLike) {
-        await Like.findByIdAndDelete(existingLike._id)
-        message = "Comment Liked"
+        await Like.deleteOne({ _id: existingLike._id });
+        message = "Comment unliked";
     } else {
         await Like.create({
             comment: commentId,
-            owner: userId
-        })
-        message = "Comment Unliked"
+            likedBy: userId
+        });
+        message = "Comment liked";
     }
 
-    res
-        .status(200)
-        .json(
-            new ApiResponse(200, null, message)
-        );
-})
+    return res.status(200).json(
+        new ApiResponse(200, null, message)
+    );
+});
 
 const toggleTweetLike = asyncHandler(async (req, res) => {
-    const { tweetId } = req.params
-    const { userId } = req.user._id
+    const { tweetId } = req.params;
+    const userId = req.user?._id;
+
+    if (!userId) {
+        throw new ApiError(401, "Unauthorized");
+    }
 
     if (!tweetId || !mongoose.isValidObjectId(tweetId)) {
-        throw new ApiError(400, "Invalid Tweet ID");
+        throw new ApiError(400, "Invalid tweet ID");
     }
 
     const existingLike = await Like.findOne({
         tweet: tweetId,
         likedBy: userId
-    })
+    });
+
     let message;
 
     if (existingLike) {
-        // unlike
-        await Like.findByIdAndDelete(existingLike._id);
-        message = "Tweet unliked"
+        await Like.deleteOne({ _id: existingLike._id });
+        message = "Tweet unliked";
     } else {
         await Like.create({
             tweet: tweetId,
             likedBy: userId
-        })
-        message = "Tweet liked"
+        });
+        message = "Tweet liked";
     }
 
-    res
-    .status(200)
-    .json(
+    return res.status(200).json(
         new ApiResponse(200, null, message)
-    )
-})
+    );
+});
 
 const getLikedVideos = asyncHandler(async (req, res) => {
     const userId = req.user?._id;
@@ -118,7 +120,8 @@ const getLikedVideos = asyncHandler(async (req, res) => {
     const likedVideos = await Like.aggregate([
         {
             $match: {
-                likedBy: new mongoose.Types.ObjectId(userId)
+                likedBy: new mongoose.Types.ObjectId(userId),
+                video: { $ne: null }
             }
         },
         {
